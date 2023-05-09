@@ -51,16 +51,15 @@ void StatusCallback(void *cbData, int code, const char *string)
   Serial.flush();
 }
 
-void setup()
-{
-  Serial.begin(115200);
+// similar to setup, but it will be called repeatedly if need be
+// e.g. ran out of audio (no stream available) etc.
+void init(){
   delay(1000);
   Serial.println("Connecting to WiFi");
 
   WiFi.disconnect();
   WiFi.softAPdisconnect(true);
   WiFi.mode(WIFI_STA);
-  
   WiFi.begin(ssid, password);
 
   // Try forever
@@ -68,40 +67,43 @@ void setup()
     Serial.println("...Connecting to WiFi");
     delay(1000);
   }
+
   Serial.println("Connected");
 
   audioLogger = &Serial;
+
   file = new AudioFileSourceICYStream(URL);
   file->RegisterMetadataCB(MDCallback, (void*)"ICY");
+
+  // Buffer the HTTP stream a bit
   buff = new AudioFileSourceBuffer(file, 2048);
   buff->RegisterStatusCB(StatusCallback, (void*)"buffer");
-  out = new AudioOutputI2S();
 
   // Note: On the AirM2M board, to use GPIO11, you must burn an efuse
   // $ pip instal esptool
   // $ espefuse.py -p /dev/ttyUSB0 burn_efuse VDD_SPI_AS_GPIO 1
   // See: https://github.com/chenxuuu/luatos-wiki/discussions/11#discussioncomment-3021045
-  
-  // BCK, LCK, DIN
-  out->SetPinout(6, 11, 7);
+  out = new AudioOutputI2S();
+  out->SetPinout(6, 11, 7); // BCK, LCK, DIN
+
   mp3 = new AudioGeneratorMP3();
   mp3->RegisterStatusCB(StatusCallback, (void*)"mp3");
   mp3->begin(buff, out);
 }
 
+void setup()
+{
+  Serial.begin(115200);
+  init();
+}
+
 void loop()
 {
-  static int lastms = 0;
-
   if (mp3->isRunning()) {
-    if (millis()-lastms > 1000) {
-      lastms = millis();
-      Serial.printf("Running for %d ms...\n", lastms);
-      Serial.flush();
-     }
     if (!mp3->loop()) mp3->stop();
   } else {
     Serial.printf("MP3 done\n");
     delay(1000);
+    init();
   }
 }
