@@ -4,7 +4,7 @@
 #include "AudioGeneratorMP3.h"
 #include "AudioOutputI2S.h"
 #include "AudioFileSourceICYStream.h"
-#include "AudioFileSourceBuffer.h"
+// #include "AudioFileSourceBuffer.h"
 
 // Enter your WiFi setup here:
 #ifndef STASSID
@@ -14,7 +14,7 @@
 
 AudioGeneratorMP3 *mp3;
 AudioFileSourceICYStream *file;
-AudioFileSourceBuffer *buff;
+// AudioFileSourceBuffer *buff;
 AudioOutputI2S *out;
 AudioFileSourceID3 *id3;
 
@@ -76,8 +76,8 @@ void init(){
   file->RegisterMetadataCB(MDCallback, (void*)"ICY");
 
   // Buffer the HTTP stream a bit
-  buff = new AudioFileSourceBuffer(file, 2048);
-  buff->RegisterStatusCB(StatusCallback, (void*)"buffer");
+  // buff = new AudioFileSourceBuffer(file, 2048);
+  // buff->RegisterStatusCB(StatusCallback, (void*)"buffer");
 
   // Note: On the AirM2M board, to use GPIO11, you must burn an efuse
   // $ pip instal esptool
@@ -88,7 +88,7 @@ void init(){
 
   mp3 = new AudioGeneratorMP3();
   mp3->RegisterStatusCB(StatusCallback, (void*)"mp3");
-  mp3->begin(buff, out);
+  mp3->begin(file, out);
 }
 
 void setup()
