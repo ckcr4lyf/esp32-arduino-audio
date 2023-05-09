@@ -77,11 +77,12 @@ void setup()
   buff->RegisterStatusCB(StatusCallback, (void*)"buffer");
   out = new AudioOutputI2S();
 
-  // BCK, LCK, DIN
   // Note: On the AirM2M board, to use GPIO11, you must burn an efuse
   // $ pip instal esptool
   // $ espefuse.py -p /dev/ttyUSB0 burn_efuse VDD_SPI_AS_GPIO 1
   // See: https://github.com/chenxuuu/luatos-wiki/discussions/11#discussioncomment-3021045
+  
+  // BCK, LCK, DIN
   out->SetPinout(6, 11, 7);
   mp3 = new AudioGeneratorMP3();
   mp3->RegisterStatusCB(StatusCallback, (void*)"mp3");
