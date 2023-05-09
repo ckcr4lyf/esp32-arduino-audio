@@ -31,7 +31,7 @@ const char* ssid = STASSID;
 const char* password = STAPSK;
 
 // Randomly picked URL
-const char *URL="http://192.168.30.1:8000/bruvva.mp3";
+const char *URL="http://192.168.30.1:8000/bruvva2.mp3";
 
 // Called when a metadata event occurs (i.e. an ID3 tag, an ICY block, etc.
 void MDCallback(void *cbData, const char *type, bool isUnicode, const char *string)
