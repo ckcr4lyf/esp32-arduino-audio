@@ -1,18 +1,10 @@
 #include <Arduino.h>
 
-#include "AudioFileSourcePROGMEM.h"
 #include "AudioFileSourceID3.h"
 #include "AudioGeneratorMP3.h"
-#include "AudioGeneratorWAV.h"
 #include "AudioOutputI2S.h"
 #include "AudioFileSourceICYStream.h"
 #include "AudioFileSourceBuffer.h"
-
-// VIOLA sample taken from https://ccrma.stanford.edu/~jos/pasp/Sound_Examples.html
-// #include "viola.h"
-#include "fly_64k.h"
-// #include "cantina.h"
-// #include "fly_short.h"
 
 // Enter your WiFi setup here:
 #ifndef STASSID
@@ -21,7 +13,6 @@
 #endif
 
 AudioGeneratorMP3 *mp3;
-// AudioFileSourcePROGMEM *file;
 AudioFileSourceICYStream *file;
 AudioFileSourceBuffer *buff;
 AudioOutputI2S *out;
@@ -85,7 +76,13 @@ void setup()
   buff = new AudioFileSourceBuffer(file, 2048);
   buff->RegisterStatusCB(StatusCallback, (void*)"buffer");
   out = new AudioOutputI2S();
-  out->SetPinout(4, 5, 18);
+
+  // BCK, LCK, DIN
+  // Note: On the AirM2M board, to use GPIO11, you must burn an efuse
+  // $ pip instal esptool
+  // $ espefuse.py -p /dev/ttyUSB0 burn_efuse VDD_SPI_AS_GPIO 1
+  // See: https://github.com/chenxuuu/luatos-wiki/discussions/11#discussioncomment-3021045
+  out->SetPinout(6, 11, 7);
   mp3 = new AudioGeneratorMP3();
   mp3->RegisterStatusCB(StatusCallback, (void*)"mp3");
   mp3->begin(buff, out);
